@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GLPI - Abrir um Chamado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+        
+        :root {
+            --glpi-header-bg: #1A2533;
+            --glpi-sidebar-bg: #F0F2F5;
+            --glpi-main-bg: #FFFFFF;
+            --glpi-panel-bg: #F8F8F8;
+            --glpi-menu-active-bg: #E6F7FF;
+            --glpi-menu-active-border: #1890FF;
+            --glpi-text-color: #444444;
+            --glpi-border-color: #DCDCDC;
+            --glpi-button-primary-bg: #1890FF;
+            --glpi-button-primary-hover: #40A9FF;
+            --glpi-accordion-header-bg: #F0F2F5;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--glpi-sidebar-bg);
+            color: var(--glpi-text-color);
+            font-size: 14px;
+            overflow: hidden;
+        }
+
+        .glpi-header {
+            background-color: var(--glpi-header-bg);
+        }
+
+        .glpi-sidebar {
+            background-color: #FFFFFF;
+            border-right: 1px solid var(--glpi-border-color);
+        }
+        
+        .glpi-menu-section-header {
+            font-size: 11px;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            padding: 16px 16px 8px 16px;
+        }
+
+        .glpi-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            color: var(--glpi-text-color);
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .glpi-menu-item:hover {
+            background-color: #E6E8EB;
+        }
+
+        .glpi-menu-item.active {
+            background-color: var(--glpi-menu-active-bg);
+            color: var(--glpi-menu-active-border);
+            font-weight: 700;
+        }
+
+        .glpi-main-content {
+            background-color: var(--glpi-main-bg);
+        }
+        
+        .glpi-right-panel {
+            background-color: var(--glpi-panel-bg);
+            border-left: 1px solid var(--glpi-border-color);
+        }
+
+        .glpi-accordion-header {
+            background-color: var(--glpi-accordion-header-bg);
+            border: 1px solid var(--glpi-border-color);
+            border-bottom: none;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #555;
+            font-size: 13px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            border: 1px solid var(--glpi-border-color);
+            border-radius: 4px;
+            padding: 6px 10px;
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-size: 14px;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--glpi-menu-active-border);
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+            outline: none;
+        }
+
+        .glpi-btn {
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: background-color 0.2s, border-color 0.2s;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .glpi-btn-primary {
+            background-color: var(--glpi-button-primary-bg);
+            color: white;
+            border-color: var(--glpi-button-primary-bg);
+        }
+
+        .glpi-btn-primary:hover {
+            background-color: var(--glpi-button-primary-hover);
+            border-color: var(--glpi-button-primary-hover);
+        }
+        
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+    </style>
+</head>
+<body class="text-sm">
+
+    <div class="flex h-screen flex-col">
+        <!-- Cabeçalho Principal -->
+        <header class="glpi-header text-white p-2 flex justify-between items-center shadow-md h-12 flex-shrink-0">
+            <div class="flex items-center">
+                <img src="https://glpi-project.org/wp-content/uploads/2022/10/GLPI_PROJECT_LOGO_RGB_WHITE-e1665586113222.png" alt="Logo GLPI" class="h-8 ml-4 mr-4" onerror="this.style.display='none'">
+            </div>
+            <div class="flex-1 max-w-xl">
+                 <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="search" placeholder="Pesquisar..." class="w-full bg-gray-700 text-white rounded-md py-1.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="flex items-center space-x-5 mr-4">
+                <i class="fas fa-home cursor-pointer hover:text-gray-300"></i>
+                <i class="far fa-question-circle cursor-pointer hover:text-gray-300"></i>
+                <div class="flex items-center space-x-2 cursor-pointer">
+                    <i class="fas fa-user-circle text-xl"></i>
+                    <span class="hidden md:inline">Super-Admin</span>
+                    <i class="fas fa-caret-down text-xs"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Barra Lateral -->
+            <aside class="w-56 glpi-sidebar p-2 flex-shrink-0 overflow-y-auto">
+                <div class="glpi-menu-section-header">Ativos</div>
+                <a href="#" class="glpi-menu-item">
+                    <i class="fas fa-desktop w-8 text-center text-base"></i>
+                    <span>Computadores</span>
+                </a>
+                <a href="#" class="glpi-menu-item">
+                    <i class="fas fa-network-wired w-8 text-center text-base"></i>
+                    <span>Rede</span>
+                </a>
+                <div class="glpi-menu-section-header">Assistência</div>
+                 <a href="#" class="glpi-menu-item active">
+                    <i class="fas fa-ticket-alt w-8 text-center text-base"></i>
+                    <span>Chamados</span>
+                </a>
+                <a href="#" class="glpi-menu-item">
+                    <i class="fas fa-exclamation-triangle w-8 text-center text-base"></i>
+                    <span>Problemas</span>
+                </a>
+                 <a href="#" class="glpi-menu-item">
+                    <i class="fas fa-sync-alt w-8 text-center text-base"></i>
+                    <span>Mudanças</span>
+                </a>
+                <div class="glpi-menu-section-header">Ferramentas</div>
+                 <a href="#" class="glpi-menu-item">
+                    <i class="fas fa-book w-8 text-center text-base"></i>
+                    <span>Base de Conhecimento</span>
+                </a>
+            </aside>
+
+            <!-- Conteúdo Principal -->
+            <main class="flex-1 flex overflow-hidden">
+                <!-- Painel Central -->
+                <div class="flex-1 p-4 overflow-y-auto glpi-main-content">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="text-sm text-gray-500">
+                           <i class="fas fa-home"></i> / Assistência / Chamados
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 border rounded-md border-gray-200">
+                        <h1 class="text-2xl font-semibold text-gray-800">Criar um Chamado</h1>
+                        <p class="mt-2 text-gray-600">Preencha os campos no painel à direita para registrar um novo chamado. Forneça o máximo de detalhes possível para agilizar o atendimento.</p>
+                    </div>
+                </div>
+
+                <!-- Painel Direito (Formulário) -->
+                <div class="w-96 flex-shrink-0 glpi-right-panel overflow-y-auto">
+                    <form id="ticket-form">
+                        <div class="glpi-accordion-header p-2 cursor-pointer flex justify-between items-center">
+                            <h3 class="font-bold text-gray-700">Chamado</h3>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </div>
+                        <div class="p-4 bg-white border border-t-0 border-gray-200 space-y-4">
+                            <div>
+                                <label class="form-label">Entidade</label>
+                                <p class="font-semibold">Raiz</p>
+                            </div>
+                            <div>
+                                <label for="type" class="form-label block mb-1">Tipo <span class="text-red-500">*</span></label>
+                                <select id="type" name="type" class="form-select" required>
+                                    <option value="incidente">Incidente</option>
+                                    <option value="requisicao">Requisição</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="category" class="form-label block mb-1">Categoria <span class="text-red-500">*</span></label>
+                                <select id="category" name="category" class="form-select" required>
+                                    <option value="tela_alunos">Cadastro > Tela de Alunos</option>
+                                    <option value="financeiro_boletos">Financeiro > Geração de Boletos</option>
+                                    <option value="relatorios_historico">Relatórios > Histórico Escolar</option>
+                                    <option value="acesso_login">Acesso > Problema de Login</option>
+                                    <option value="infra_lentidao">Infraestrutura > Lentidão no Sistema</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                            </div>
+                             <div>
+                                <label for="urgency" class="form-label block mb-1">Urgência</label>
+                                <select id="urgency" name="urgency" class="form-select">
+                                    <option value="3">Média</option>
+                                    <option value="5">Muito Alta</option>
+                                    <option value="4">Alta</option>
+                                    <option value="2">Baixa</option>
+                                    <option value="1">Muito Baixa</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-white border border-t-0 border-gray-200">
+                             <label for="title" class="form-label block mb-1">Título <span class="text-red-500">*</span></label>
+                             <input type="text" id="title" name="title" class="form-input" placeholder="Título breve do problema" required>
+                        </div>
+                        <div class="p-4 bg-white border border-t-0 border-gray-200">
+                            <label for="description" class="form-label block mb-1">Descrição <span class="text-red-500">*</span></label>
+                            <textarea id="description" name="description" rows="8" class="form-textarea" placeholder="Descrição detalhada..." required></textarea>
+                        </div>
+                         <div class="p-4 bg-white border border-t-0 border-gray-200">
+                            <label class="form-label block mb-1">Anexos</label>
+                             <label for="file-upload" class="cursor-pointer glpi-btn glpi-btn-secondary text-xs">
+                                <i class="fas fa-paperclip mr-2 text-sm"></i>
+                                <span>Adicionar um arquivo</span>
+                            </label>
+                            <input id="file-upload" type="file" class="hidden" multiple>
+                            <span id="file-name" class="ml-2 text-gray-500 text-xs"></span>
+                        </div>
+
+                        <div class="p-4 bg-gray-100 border-t border-gray-200">
+                            <button type="submit" class="glpi-btn glpi-btn-primary">
+                                <i class="fas fa-plus mr-2"></i>
+                                Adicionar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div id="confirmation-modal" class="fixed inset-0 z-50 items-center justify-center hidden modal-backdrop">
+        <div class="bg-white rounded-lg shadow-xl p-8 max-w-md mx-auto text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-green-500 text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Novo chamado registrado</h3>
+            <p class="text-gray-600 mb-6">Seu chamado <strong id="ticket-id" class="text-blue-600">#2025-12345</strong> foi aberto com sucesso.</p>
+            <button id="close-modal" class="glpi-btn glpi-btn-primary w-full">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('ticket-form');
+            const modal = document.getElementById('confirmation-modal');
+            const closeModalButton = document.getElementById('close-modal');
+            const fileInput = document.getElementById('file-upload');
+            const fileNameSpan = document.getElementById('file-name');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const randomId = Math.floor(10000 + Math.random() * 90000);
+                document.getElementById('ticket-id').textContent = `#${new Date().getFullYear()}-${randomId}`;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            });
+
+            closeModalButton.addEventListener('click', function() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                form.reset();
+                fileNameSpan.textContent = '';
+            });
+            
+            fileInput.addEventListener('change', function() {
+                if (fileInput.files.length > 0) {
+                    fileNameSpan.textContent = fileInput.files.length === 1 ? fileInput.files[0].name : `${fileInput.files.length} arquivos selecionados`;
+                } else {
+                    fileNameSpan.textContent = '';
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
